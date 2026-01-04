@@ -3,23 +3,23 @@
   "spec": "001-deploy",
   "state": "building",
   "subtasks": {
-    "completed": 19,
+    "completed": 26,
     "total": 33,
     "in_progress": 1,
     "failed": 0
   },
   "phase": {
-    "current": "Containerization",
+    "current": "Unit Tests",
     "id": null,
-    "total": 3
+    "total": 7
   },
   "workers": {
     "active": 0,
     "max": 1
   },
   "session": {
-    "number": 20,
+    "number": 27,
     "started_at": "2026-01-04T03:35:14.350862"
   },
-  "last_update": "2026-01-04T04:47:24.148822"
+  "last_update": "2026-01-04T05:07:02.212868"
 }
