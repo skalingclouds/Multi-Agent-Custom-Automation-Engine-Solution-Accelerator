@@ -1,0 +1,489 @@
+{
+  "integrations_researched": [
+    {
+      "name": "azure-storage-blob",
+      "type": "library",
+      "verified_package": {
+        "name": "azure-storage-blob",
+        "install_command": "pip install azure-storage-blob==12.23.0",
+        "version_specified": "12.23.0",
+        "latest_version": "12.27.1",
+        "verified": true
+      },
+      "api_patterns": {
+        "imports": [
+          "from azure.storage.blob import BlobServiceClient",
+          "from azure.storage.blob import BlobClient",
+          "from azure.storage.blob import ContainerClient"
+        ],
+        "initialization": "blob_service_client = BlobServiceClient.from_connection_string(conn_str=connection_string)\n# OR with account URL:\nblob_service_client = BlobServiceClient(account_url=account_url, credential=sas_token)",
+        "key_functions": [
+          "BlobServiceClient.from_connection_string(conn_str)",
+          "blob_service_client.get_container_client(container_name)",
+          "blob_service_client.get_blob_client(container, blob)",
+          "blob_client.upload_blob(data, overwrite=True)",
+          "blob_client.download_blob().readall()",
+          "container_client.list_blobs()"
+        ],
+        "verified_against": "Microsoft Learn docs + PyPI"
+      },
+      "configuration": {
+        "env_vars": [
+          "AZURE_STORAGE_ACCOUNT_URL",
+          "AZURE_STORAGE_SAS_TOKEN",
+          "AZURE_STORAGE_CONTAINER"
+        ],
+        "config_files": [],
+        "dependencies": []
+      },
+      "infrastructure": {
+        "requires_docker": false,
+        "azure_service": "Azure Blob Storage"
+      },
+      "gotchas": [
+        "Use SAS token or Managed Identity for auth - avoid account keys in production",
+        "Connection string method simpler for dev, account_url + credential for production",
+        "upload_blob() has max_single_put_size (64 MiB default) before chunking",
+        "Legacy azure-storage-python (v2.x) was retired Sept 2024 - use v12.x only"
+      ],
+      "research_sources": [
+        "https://pypi.org/project/azure-storage-blob/",
+        "https://learn.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-python",
+        "https://learn.microsoft.com/en-us/python/api/overview/azure/storage-blob-readme"
+      ]
+    },
+    {
+      "name": "azure-search-documents",
+      "type": "library",
+      "verified_package": {
+        "name": "azure-search-documents",
+        "install_command": "pip install azure-search-documents==11.6.0",
+        "version_specified": "11.6.0",
+        "latest_version": "11.6.0+",
+        "verified": true
+      },
+      "api_patterns": {
+        "imports": [
+          "from azure.search.documents import SearchClient",
+          "from azure.search.documents.indexes import SearchIndexClient",
+          "from azure.core.credentials import AzureKeyCredential"
+        ],
+        "initialization": "search_client = SearchClient(\n    endpoint=service_endpoint,\n    index_name=index_name,\n    credential=AzureKeyCredential(api_key)\n)",
+        "key_functions": [
+          "SearchClient(endpoint, index_name, credential)",
+          "search_client.upload_documents(documents=[doc])",
+          "search_client.merge_or_upload_documents(documents)",
+          "search_client.search(search_text, filter=filter_expr)",
+          "SearchIndexClient.create_index(index)"
+        ],
+        "verified_against": "Microsoft Learn docs + PyPI"
+      },
+      "configuration": {
+        "env_vars": [
+          "AZURE_SEARCH_ENDPOINT",
+          "AZURE_SEARCH_API_KEY",
+          "AZURE_SEARCH_INDEX_NAME"
+        ],
+        "config_files": [],
+        "dependencies": ["azure-core"]
+      },
+      "infrastructure": {
+        "requires_docker": false,
+        "azure_service": "Azure AI Search"
+      },
+      "gotchas": [
+        "Use admin key for write operations (upload_documents), query key for read-only",
+        "upload_documents acts like upsert - replaces if exists",
+        "Python 3.8+ required for this package",
+        "Vector search requires 11.6.0+ for full support"
+      ],
+      "research_sources": [
+        "https://pypi.org/project/azure-search-documents/",
+        "https://learn.microsoft.com/en-us/python/api/overview/azure/search-documents-readme",
+        "https://learn.microsoft.com/en-us/python/api/azure-search-documents/azure.search.documents.searchclient"
+      ]
+    },
+    {
+      "name": "slack_sdk",
+      "type": "library",
+      "verified_package": {
+        "name": "slack-sdk",
+        "install_command": "pip install slack-sdk==3.33.1",
+        "version_specified": "3.33.1",
+        "latest_version": "3.33.x",
+        "verified": true,
+        "note": "Package name on PyPI is 'slack-sdk' (with hyphen), import as 'slack_sdk' (with underscore)"
+      },
+      "api_patterns": {
+        "imports": [
+          "from slack_sdk import WebClient",
+          "from slack_sdk.errors import SlackApiError"
+        ],
+        "initialization": "client = WebClient(token=os.environ['SLACK_BOT_TOKEN'])",
+        "key_functions": [
+          "WebClient(token=token)",
+          "client.chat_postMessage(channel='#channel', text='message')",
+          "client.chat_postMessage(channel='#channel', blocks=[...])",
+          "client.files_upload_v2(channel='#channel', file=path)"
+        ],
+        "verified_against": "Slack Developer Docs + PyPI"
+      },
+      "configuration": {
+        "env_vars": [
+          "SLACK_BOT_TOKEN",
+          "SLACK_CHANNEL"
+        ],
+        "config_files": [],
+        "dependencies": []
+      },
+      "infrastructure": {
+        "requires_docker": false,
+        "external_service": "Slack Workspace with Bot configured"
+      },
+      "gotchas": [
+        "Bot token format is 'xoxb-...'",
+        "Channel can be ID (C01234567) or name (#channel-name)",
+        "slackclient is deprecated - use slack-sdk v3.x",
+        "No required dependencies since v3 - aiohttp needed only for async",
+        "Built-in RateLimitErrorRetryHandler available since v3.9.0"
+      ],
+      "research_sources": [
+        "https://pypi.org/project/slack-sdk/",
+        "https://docs.slack.dev/tools/python-slack-sdk/web/",
+        "https://github.com/slackapi/python-slack-sdk"
+      ]
+    },
+    {
+      "name": "Azure OpenAI (REST API)",
+      "type": "service",
+      "verified_package": {
+        "name": "requests (for REST calls)",
+        "install_command": "pip install requests==2.32.3",
+        "verified": true,
+        "note": "Using direct REST API via requests library, not openai SDK"
+      },
+      "api_patterns": {
+        "imports": [
+          "import requests"
+        ],
+        "initialization": "# No SDK initialization needed - uses requests directly",
+        "key_functions": [
+          "POST https://{endpoint}/openai/deployments/{deployment}/chat/completions?api-version=2024-02-15-preview",
+          "Headers: {'api-key': AZURE_OPENAI_API_KEY, 'Content-Type': 'application/json'}",
+          "Body: {'messages': [{'role': 'user', 'content': 'prompt'}], 'temperature': 0.7}"
+        ],
+        "verified_against": "Microsoft Learn Azure OpenAI REST API reference"
+      },
+      "configuration": {
+        "env_vars": [
+          "AZURE_OPENAI_ENDPOINT",
+          "AZURE_OPENAI_API_KEY",
+          "AZURE_OPENAI_DEPLOYMENT"
+        ],
+        "config_files": [],
+        "dependencies": ["requests"]
+      },
+      "infrastructure": {
+        "requires_docker": false,
+        "azure_service": "Azure OpenAI Service",
+        "deployment_models": ["gpt-4o", "gpt-4.1"]
+      },
+      "gotchas": [
+        "Use api-version parameter in URL (e.g., 2024-02-15-preview or 2025-04-01-preview)",
+        "New v1 API available Aug 2025+ with simplified versioning",
+        "max_completion_tokens for o1-series models, max_tokens for GPT-4",
+        "Token-based auth (Managed Identity) recommended over API keys for production"
+      ],
+      "research_sources": [
+        "https://learn.microsoft.com/en-us/azure/ai-foundry/openai/reference",
+        "https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/chatgpt"
+      ]
+    },
+    {
+      "name": "requests",
+      "type": "library",
+      "verified_package": {
+        "name": "requests",
+        "install_command": "pip install requests==2.32.3",
+        "version_specified": "2.32.3",
+        "latest_version": "2.32.5",
+        "verified": true
+      },
+      "api_patterns": {
+        "imports": [
+          "import requests"
+        ],
+        "initialization": "# No initialization needed",
+        "key_functions": [
+          "requests.get(url, headers=headers)",
+          "requests.post(url, json=data, headers=headers)",
+          "response.json()",
+          "response.raise_for_status()"
+        ],
+        "verified_against": "PyPI + requests documentation"
+      },
+      "configuration": {
+        "env_vars": [],
+        "config_files": [],
+        "dependencies": ["certifi", "charset_normalizer", "idna", "urllib3"]
+      },
+      "infrastructure": {
+        "requires_docker": false
+      },
+      "gotchas": [
+        "Python 3.9+ officially supported",
+        "CVE-2024-47081 fixed in 2.32.4 - use 2.32.3+ minimum",
+        "~30M downloads/week, depended on by 1M+ repos"
+      ],
+      "research_sources": [
+        "https://pypi.org/project/requests/",
+        "https://requests.readthedocs.io/"
+      ]
+    },
+    {
+      "name": "python-dotenv",
+      "type": "library",
+      "verified_package": {
+        "name": "python-dotenv",
+        "install_command": "pip install python-dotenv==1.0.1",
+        "version_specified": "1.0.1",
+        "verified": true
+      },
+      "api_patterns": {
+        "imports": [
+          "from dotenv import load_dotenv",
+          "from dotenv import dotenv_values"
+        ],
+        "initialization": "load_dotenv()  # reads .env file and sets os.environ",
+        "key_functions": [
+          "load_dotenv()",
+          "load_dotenv(override=True)",
+          "dotenv_values('.env')"
+        ],
+        "verified_against": "PyPI + GitHub README"
+      },
+      "configuration": {
+        "env_vars": [],
+        "config_files": [".env"],
+        "dependencies": []
+      },
+      "infrastructure": {
+        "requires_docker": false
+      },
+      "gotchas": [
+        "By default does NOT override existing env vars (use override=True to change)",
+        "Searches current directory and up the tree for .env",
+        "Set PYTHON_DOTENV_DISABLED=1 to disable in production",
+        "Default encoding is UTF-8"
+      ],
+      "research_sources": [
+        "https://pypi.org/project/python-dotenv/",
+        "https://github.com/theskumar/python-dotenv"
+      ]
+    },
+    {
+      "name": "pydantic",
+      "type": "library",
+      "verified_package": {
+        "name": "pydantic",
+        "install_command": "pip install pydantic==2.9.2",
+        "version_specified": "2.9.2",
+        "latest_version": "2.12.5",
+        "verified": true
+      },
+      "api_patterns": {
+        "imports": [
+          "from pydantic import BaseModel",
+          "from pydantic import Field",
+          "from pydantic_settings import BaseSettings"
+        ],
+        "initialization": "class MyModel(BaseModel):\n    field: str",
+        "key_functions": [
+          "BaseModel",
+          "Field(default=..., description='...')",
+          "model.model_dump()",
+          "model.model_validate(data)"
+        ],
+        "verified_against": "Pydantic v2 documentation"
+      },
+      "configuration": {
+        "env_vars": [],
+        "config_files": [],
+        "dependencies": ["pydantic-core"]
+      },
+      "infrastructure": {
+        "requires_docker": false
+      },
+      "gotchas": [
+        "v2 syntax differs from v1 (.dict() → .model_dump(), .parse_obj() → .model_validate())",
+        "pydantic-settings is now separate package for BaseSettings",
+        "Python 3.9+ required for pydantic v2",
+        "V1 compatibility available via 'from pydantic import v1 as pydantic_v1'"
+      ],
+      "research_sources": [
+        "https://pypi.org/project/pydantic/",
+        "https://docs.pydantic.dev/latest/",
+        "https://docs.pydantic.dev/latest/migration/"
+      ]
+    },
+    {
+      "name": "tqdm",
+      "type": "library",
+      "verified_package": {
+        "name": "tqdm",
+        "install_command": "pip install tqdm==4.66.5",
+        "version_specified": "4.66.5",
+        "latest_version": "4.67.1",
+        "verified": true
+      },
+      "api_patterns": {
+        "imports": [
+          "from tqdm import tqdm"
+        ],
+        "initialization": "# No initialization needed",
+        "key_functions": [
+          "tqdm(iterable)",
+          "tqdm(iterable, desc='Processing')",
+          "tqdm.write('message')"
+        ],
+        "verified_against": "PyPI + tqdm documentation"
+      },
+      "configuration": {
+        "env_vars": [],
+        "config_files": [],
+        "dependencies": []
+      },
+      "infrastructure": {
+        "requires_docker": false
+      },
+      "gotchas": [
+        "No dependencies required (not even curses)",
+        "~60ns overhead per iteration - negligible",
+        "Works in IPython/Jupyter notebooks",
+        "Python 3.7+ required"
+      ],
+      "research_sources": [
+        "https://pypi.org/project/tqdm/",
+        "https://github.com/tqdm/tqdm"
+      ]
+    },
+    {
+      "name": "Azure Container Apps Jobs",
+      "type": "infrastructure",
+      "verified_package": {
+        "name": "Microsoft.App/jobs",
+        "verified": true
+      },
+      "api_patterns": {
+        "imports": [],
+        "initialization": "# Bicep resource definition",
+        "key_functions": [
+          "Schedule trigger type (cron expression)",
+          "Manual trigger type (on-demand)",
+          "Event trigger type (message queue)"
+        ],
+        "verified_against": "Microsoft Learn Container Apps Jobs documentation"
+      },
+      "configuration": {
+        "env_vars": [],
+        "config_files": ["main.bicep"],
+        "dependencies": ["Microsoft.App/managedEnvironments"]
+      },
+      "infrastructure": {
+        "requires_docker": true,
+        "docker_image": "Azure Container Registry or Docker Hub",
+        "azure_service": "Azure Container Apps",
+        "bicep_api_version": "2025-10-02-preview"
+      },
+      "gotchas": [
+        "Jobs are for finite tasks that exit - not long-running apps",
+        "Scheduled jobs use cron syntax (e.g., '0 */4 * * *' for every 4 hours)",
+        "Container Apps Jobs require managed environment first",
+        "Python SDK: azure-mgmt-appcontainers for programmatic management"
+      ],
+      "research_sources": [
+        "https://learn.microsoft.com/en-us/azure/container-apps/jobs",
+        "https://github.com/Azure-Samples/container-apps-jobs",
+        "https://learn.microsoft.com/en-us/azure/templates/microsoft.app/containerapps"
+      ]
+    },
+    {
+      "name": "Azure Bicep",
+      "type": "infrastructure",
+      "verified_package": {
+        "name": "Azure CLI / Bicep CLI",
+        "install_command": "az bicep install",
+        "verified": true
+      },
+      "api_patterns": {
+        "imports": [],
+        "initialization": "// Bicep file\nresource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {...}",
+        "key_functions": [
+          "az deployment group create --resource-group RG --template-file main.bicep",
+          "az bicep build --file main.bicep"
+        ],
+        "verified_against": "Microsoft Learn Bicep documentation"
+      },
+      "configuration": {
+        "env_vars": [],
+        "config_files": ["main.bicep", "*.bicep"],
+        "dependencies": ["Azure CLI"]
+      },
+      "infrastructure": {
+        "requires_docker": false
+      },
+      "gotchas": [
+        "Use latest API versions for resources (2025-10-02-preview for Container Apps)",
+        "Microsoft.App/managedEnvironments required before containerApps",
+        "Key Vault integration recommended for secrets in Bicep",
+        "Bicep modules help organize multi-resource deployments"
+      ],
+      "research_sources": [
+        "https://learn.microsoft.com/en-us/azure/templates/microsoft.app/containerapps",
+        "https://learn.microsoft.com/en-us/azure/templates/microsoft.app/managedenvironments"
+      ]
+    }
+  ],
+  "unverified_claims": [
+    {
+      "claim": "GovTribe, OpenGov, BidNet APIs are available as JSON/REST endpoints",
+      "reason": "These are third-party government portal aggregators. Actual API access may require subscriptions, authentication, or may require HTML scraping instead of REST APIs.",
+      "risk_level": "high"
+    },
+    {
+      "claim": "GPT-4.1 deployment name is valid in Azure OpenAI",
+      "reason": "Standard Azure OpenAI deployment names are gpt-4o, gpt-4, gpt-35-turbo. 'gpt-4.1' may be a custom deployment name or typo for gpt-4-1106-preview.",
+      "risk_level": "medium"
+    }
+  ],
+  "recommendations": [
+    "Update package versions to latest stable releases where appropriate (requests 2.32.5, pydantic 2.12.5, azure-storage-blob 12.27.1)",
+    "For scraper implementations, prepare for HTML parsing (BeautifulSoup, Playwright) as fallback since GovTribe/OpenGov/BidNet may not have public REST APIs",
+    "Use Managed Identity instead of API keys for Azure services in production Container Apps",
+    "Add 'beautifulsoup4' and 'httpx' or 'playwright' to requirements.txt for robust web scraping",
+    "Verify Azure OpenAI deployment name matches actual deployment (gpt-4o, gpt-4, or custom name)",
+    "Consider adding retry logic with exponential backoff for all external API calls",
+    "Add pydantic-settings package if using BaseSettings for configuration management"
+  ],
+  "python_version_requirements": {
+    "minimum": "3.9",
+    "reason": "azure-storage-blob requires 3.9+, pydantic v2 requires 3.9+, requests officially supports 3.9+"
+  },
+  "complete_requirements_txt": {
+    "specified": [
+      "azure-storage-blob==12.23.0",
+      "azure-search-documents==11.6.0",
+      "requests==2.32.3",
+      "python-dotenv==1.0.1",
+      "slack_sdk==3.33.1",
+      "pydantic==2.9.2",
+      "tqdm==4.66.5"
+    ],
+    "recommended_additions": [
+      "beautifulsoup4>=4.12.0  # For HTML parsing in scrapers",
+      "lxml>=5.0.0  # Fast HTML/XML parser for BeautifulSoup",
+      "httpx>=0.27.0  # Async HTTP client alternative"
+    ]
+  },
+  "created_at": "2026-01-04T00:00:00Z"
+}

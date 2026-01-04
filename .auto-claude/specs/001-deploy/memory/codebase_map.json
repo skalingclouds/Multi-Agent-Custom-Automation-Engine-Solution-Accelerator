@@ -1,0 +1,25 @@
+{
+  "discovered_files": {
+    "src/rfp_radar/logging_utils.py": {
+      "description": "Structured logging utility with setup_logging() function supporting JSON logs for production and colored human-readable logs for development. Includes Azure Application Insights integration when APPLICATIONINSIGHTS_CONNECTION_STRING is set. Use get_logger(__name__) to get namespaced loggers.",
+      "category": "logging",
+      "discovered_at": "2026-01-04T11:48:28.255167+00:00"
+    },
+    "src/rfp_radar/scrapers/__init__.py": {
+      "description": "Scrapers package with SCRAPERS registry dictionary. Use @register_scraper(\"source_name\") decorator to register new scraper classes. The registry uses lowercase source names as keys. Helper functions: get_scraper(name) returns scraper class, get_available_sources() returns list of registered sources.",
+      "category": "architecture",
+      "discovered_at": "2026-01-04T12:09:34.920412+00:00"
+    },
+    "src/rfp_radar/scrapers/base.py": {
+      "description": "BaseScraper abstract base class for all RFP scrapers. Provides: abstract fetch_listings() and parse_listing() methods that subclasses must implement, _request_with_retry() for HTTP requests with exponential backoff (max 3 retries), scrape() method that orchestrates the full pipeline (fetch \u2192 parse \u2192 filter), _passes_filters() for age and geography filtering, get()/post() convenience methods, and context manager support. Use @register_scraper(\"source_name\") decorator from scrapers/__init__.py when creating concrete implementations.",
+      "category": "architecture",
+      "discovered_at": "2026-01-04T12:12:23.420081+00:00"
+    },
+    "src/rfp_radar/main.py": {
+      "description": "Main orchestrator with RFPRadarPipeline class. Entry point is main() function. Pipeline stages: 1) _scrape_all_sources() - uses SCRAPERS registry, 2) _classify_rfps() - uses RFPClassifier.classify_batch(), 3) _filter_relevant() - uses relevance threshold, 4) _store_rfp_metadata() - Azure Blob Storage, 5) _index_rfps() - Azure AI Search, 6) _generate_proposals() - ProposalGenerator.generate_batch(), 7) _build_and_send_digest() - DigestBuilder + SlackClient. Supports context manager, lazy client initialization, and graceful Slack failure handling.",
+      "category": "architecture",
+      "discovered_at": "2026-01-04T12:44:03.999515+00:00"
+    }
+  },
+  "last_updated": "2026-01-04T12:44:03.999528+00:00"
+}

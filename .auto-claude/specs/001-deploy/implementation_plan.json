@@ -1,0 +1,841 @@
+{
+  "feature": "NAITIVE RFP Radar - Azure-native automated RFP discovery and proposal generation system",
+  "workflow_type": "feature",
+  "workflow_rationale": "This is a new feature deployment that adds a complete RFP Radar subsystem to the existing Multi-Agent Custom Automation Engine. It involves creating new Python modules, a new Docker container, infrastructure provisioning via Bicep, and integration with external services (Slack, Azure services). The scope is significant but well-defined with clear deliverables.",
+  "created_at": "2026-01-04T11:13:20.106Z",
+  "updated_at": "2026-01-04T11:34:41.147Z",
+  "status": "in_progress",
+  "planStatus": "in_progress",
+  "phases": [
+    {
+      "id": "phase-1-foundation",
+      "name": "Foundation Layer",
+      "type": "implementation",
+      "description": "Create core foundation modules: package init, configuration, Pydantic models, and logging utilities. These are the base dependencies for all other modules.",
+      "depends_on": [],
+      "parallel_safe": true,
+      "subtasks": [
+        {
+          "id": "subtask-1-1",
+          "description": "Create rfp_radar package structure with __init__.py",
+          "service": "rfp_radar",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/rfp_radar/__init__.py"
+          ],
+          "patterns_from": [
+            "src/mcp_server/__init__.py"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "python -c \"import sys; sys.path.insert(0, 'src'); from rfp_radar import __version__; print('OK')\"",
+            "expected": "OK"
+          },
+          "status": "completed",
+          "notes": "Created rfp_radar package with __init__.py following mcp_server pattern. Verification passed.",
+          "updated_at": "2026-01-04T11:36:38.184181+00:00"
+        },
+        {
+          "id": "subtask-1-2",
+          "description": "Create config.py with environment variable loading following app_config.py pattern",
+          "service": "rfp_radar",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/rfp_radar/config.py"
+          ],
+          "patterns_from": [
+            "src/backend/common/config/app_config.py"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "python -c \"import sys; sys.path.insert(0, 'src'); from rfp_radar.config import RFPRadarConfig; print('OK')\"",
+            "expected": "OK"
+          },
+          "status": "completed",
+          "notes": "Created config.py with RFPRadarConfig class following app_config.py pattern. Includes required settings (Azure Storage, Search, OpenAI, Slack) and optional settings with defaults. Uses lazy loading for azure.identity imports. Verification passed successfully.",
+          "updated_at": "2026-01-04T11:41:54.778514+00:00"
+        },
+        {
+          "id": "subtask-1-3",
+          "description": "Create Pydantic models for RFP data structures (RFP, ClassificationResult, ProposalMetadata)",
+          "service": "rfp_radar",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/rfp_radar/models.py"
+          ],
+          "patterns_from": [],
+          "verification": {
+            "type": "command",
+            "command": "python -c \"import sys; sys.path.insert(0, 'src'); from rfp_radar.models import RFP, ClassificationResult; print('OK')\"",
+            "expected": "OK"
+          },
+          "status": "completed",
+          "notes": "Created models.py with comprehensive Pydantic v2 data models including RFP, ClassificationResult, ProposalMetadata, ClassifiedRFP, Proposal, DigestEntry, Digest, ScraperResult, and supporting enums (RFPSource, RFPStatus, RFPTag). All models use proper field validation, default factories, and include helper methods. Verification passed successfully.",
+          "updated_at": "2026-01-04T11:45:46.097110+00:00"
+        },
+        {
+          "id": "subtask-1-4",
+          "description": "Create logging_utils.py with structured logging setup",
+          "service": "rfp_radar",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/rfp_radar/logging_utils.py"
+          ],
+          "patterns_from": [],
+          "verification": {
+            "type": "command",
+            "command": "python -c \"import sys; sys.path.insert(0, 'src'); from rfp_radar.logging_utils import setup_logging; print('OK')\"",
+            "expected": "OK"
+          },
+          "status": "completed",
+          "notes": "Created logging_utils.py with comprehensive structured logging setup including: StructuredFormatter for JSON logging in production, HumanReadableFormatter with ANSI colors for development, setup_logging() function with Azure Application Insights integration support, get_logger() helper, LogContext context manager for adding contextual fields, and ContextAdapter for automatic context inclusion. Verification passed successfully.",
+          "updated_at": "2026-01-04T11:48:22.296221+00:00"
+        }
+      ]
+    },
+    {
+      "id": "phase-2-azure-clients",
+      "name": "Azure Service Clients",
+      "type": "implementation",
+      "description": "Create client wrappers for Azure services (Blob Storage, AI Search, OpenAI) and Slack SDK.",
+      "depends_on": [
+        "phase-1-foundation"
+      ],
+      "parallel_safe": true,
+      "subtasks": [
+        {
+          "id": "subtask-2-1",
+          "description": "Create Azure Blob Storage client wrapper for RFP document storage",
+          "service": "rfp_radar",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/rfp_radar/storage_client.py"
+          ],
+          "patterns_from": [
+            "src/backend/common/config/app_config.py"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "python -c \"import sys; sys.path.insert(0, 'src'); from rfp_radar.storage_client import StorageClient; print('OK')\"",
+            "expected": "OK"
+          },
+          "status": "completed",
+          "notes": "Created StorageClient class with Azure Blob Storage integration. Supports SAS token and Managed Identity authentication, RFP document and proposal upload/download, metadata management, and structured logging. Verified Python syntax is correct. Commit: d4ad8b56",
+          "updated_at": "2026-01-04T11:52:50.369398+00:00"
+        },
+        {
+          "id": "subtask-2-2",
+          "description": "Create Azure AI Search client wrapper for RFP indexing",
+          "service": "rfp_radar",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/rfp_radar/search_client.py"
+          ],
+          "patterns_from": [],
+          "verification": {
+            "type": "command",
+            "command": "python -c \"import sys; sys.path.insert(0, 'src'); from rfp_radar.search_client import SearchClient; print('OK')\"",
+            "expected": "OK"
+          },
+          "status": "completed",
+          "notes": "Created SearchClient class with Azure AI Search integration. Supports API key and Managed Identity authentication, index creation with RFP-specific schema, document indexing (single and batch), search queries with filters, relevance-based search, and document management operations. Verified Python syntax is correct and import works. Commit: b19f4969",
+          "updated_at": "2026-01-04T11:59:15.885656+00:00"
+        },
+        {
+          "id": "subtask-2-3",
+          "description": "Create Azure OpenAI REST client for classification and proposal generation",
+          "service": "rfp_radar",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/rfp_radar/llm_client.py"
+          ],
+          "patterns_from": [],
+          "verification": {
+            "type": "command",
+            "command": "python -c \"import sys; sys.path.insert(0, 'src'); from rfp_radar.llm_client import LLMClient; print('OK')\"",
+            "expected": "OK"
+          },
+          "status": "completed",
+          "notes": "Created LLMClient class with Azure OpenAI REST API integration. Supports both API key and managed identity authentication, exponential backoff with max 3 retries, 60-second timeout handling, classify_rfp() for relevance scoring and tag extraction, generate_proposal() for Level 3 proposal generation. Uses requests library per spec requirements (not OpenAI SDK). Verification passed. Commit: ccb059b6",
+          "updated_at": "2026-01-04T12:03:19.942287+00:00"
+        },
+        {
+          "id": "subtask-2-4",
+          "description": "Create Slack SDK wrapper for posting digests to #bots channel",
+          "service": "rfp_radar",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/rfp_radar/slack_client.py"
+          ],
+          "patterns_from": [],
+          "verification": {
+            "type": "command",
+            "command": "python -c \"import sys; sys.path.insert(0, 'src'); from rfp_radar.slack_client import SlackClient; print('OK')\"",
+            "expected": "OK"
+          },
+          "status": "completed",
+          "notes": "Created SlackClient class with Slack SDK integration. Features: WebClient wrapper with retry logic (max 3 retries), exponential backoff for rate limiting, post_digest() for rich formatted RFP digests using Block Kit, post_empty_digest() for \"no new RFPs\" notifications, post_error_notification() for error reporting, health check functionality. Follows graceful failure pattern per spec (logs errors but doesn't block). Verified import works successfully. Commit: 5f2c1a41",
+          "updated_at": "2026-01-04T12:07:18.846038+00:00"
+        }
+      ]
+    },
+    {
+      "id": "phase-3-scraper-framework",
+      "name": "Scraper Framework",
+      "type": "implementation",
+      "description": "Create extensible scraper framework with base class and three portal implementations (GovTribe, OpenGov, BidNet).",
+      "depends_on": [
+        "phase-1-foundation"
+      ],
+      "parallel_safe": true,
+      "subtasks": [
+        {
+          "id": "subtask-3-1",
+          "description": "Create scrapers package with __init__.py and registry",
+          "service": "rfp_radar",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/rfp_radar/scrapers/__init__.py"
+          ],
+          "patterns_from": [],
+          "verification": {
+            "type": "command",
+            "command": "python -c \"import sys; sys.path.insert(0, 'src'); from rfp_radar.scrapers import SCRAPERS; print('OK')\"",
+            "expected": "OK"
+          },
+          "status": "completed",
+          "notes": "Created scrapers package with __init__.py containing SCRAPERS registry dictionary, register_scraper decorator for registering scraper classes, get_scraper() and get_available_sources() helper functions, and conditional imports for future scraper implementations. Verification passed successfully. Commit: 9d0cc838",
+          "updated_at": "2026-01-04T12:09:29.831109+00:00"
+        },
+        {
+          "id": "subtask-3-2",
+          "description": "Create base scraper abstract class with common interface",
+          "service": "rfp_radar",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/rfp_radar/scrapers/base.py"
+          ],
+          "patterns_from": [],
+          "verification": {
+            "type": "command",
+            "command": "python -c \"import sys; sys.path.insert(0, 'src'); from rfp_radar.scrapers.base import BaseScraper; print('OK')\"",
+            "expected": "OK"
+          },
+          "status": "completed",
+          "notes": "Created BaseScraper abstract class in src/rfp_radar/scrapers/base.py. Features: abstract interface with fetch_listings() and parse_listing() methods, HTTP request handling with exponential backoff retry (max 3 retries), RFP filtering by age and geography, full scrape() pipeline orchestration, context manager support, and structured logging. Python syntax verified successfully. Commit: fc18085e",
+          "updated_at": "2026-01-04T12:12:16.980978+00:00"
+        },
+        {
+          "id": "subtask-3-3",
+          "description": "Create GovTribe-style aggregator scraper implementation",
+          "service": "rfp_radar",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/rfp_radar/scrapers/govtribe.py"
+          ],
+          "patterns_from": [
+            "src/rfp_radar/scrapers/base.py"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "python -c \"import sys; sys.path.insert(0, 'src'); from rfp_radar.scrapers.govtribe import GovTribeScraper; print('OK')\"",
+            "expected": "OK"
+          },
+          "status": "completed",
+          "notes": "Created GovTribeScraper class in src/rfp_radar/scrapers/govtribe.py. Implements BaseScraper interface with fetch_listings() and parse_listing() methods. Includes pagination, flexible field extraction, date parsing, and proper error handling.",
+          "updated_at": "2026-01-04T12:18:03.705569+00:00"
+        },
+        {
+          "id": "subtask-3-4",
+          "description": "Create OpenGov portal scraper implementation",
+          "service": "rfp_radar",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/rfp_radar/scrapers/opengov.py"
+          ],
+          "patterns_from": [
+            "src/rfp_radar/scrapers/base.py"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "python -c \"import sys; sys.path.insert(0, 'src'); from rfp_radar.scrapers.opengov import OpenGovScraper; print('OK')\"",
+            "expected": "OK"
+          },
+          "status": "completed",
+          "notes": "Created OpenGovScraper class in src/rfp_radar/scrapers/opengov.py. Follows the pattern from GovTribeScraper with OpenGov-specific adaptations. Syntax verification passed. Full import test blocked by environment issue (pydantic_core mismatch in Auto-Claude.app paths) which also affects existing govtribe scraper.",
+          "updated_at": "2026-01-04T12:23:14.942278+00:00"
+        },
+        {
+          "id": "subtask-3-5",
+          "description": "Create BidNet portal scraper implementation",
+          "service": "rfp_radar",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/rfp_radar/scrapers/bidnet.py"
+          ],
+          "patterns_from": [
+            "src/rfp_radar/scrapers/base.py"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "python -c \"import sys; sys.path.insert(0, 'src'); from rfp_radar.scrapers.bidnet import BidNetScraper; print('OK')\"",
+            "expected": "OK"
+          },
+          "status": "completed",
+          "notes": "Created BidNet portal scraper implementation at src/rfp_radar/scrapers/bidnet.py. Follows same patterns as GovTribeScraper and OpenGovScraper. Verification passed - import works correctly.",
+          "updated_at": "2026-01-04T12:26:59.350243+00:00"
+        }
+      ]
+    },
+    {
+      "id": "phase-4-business-logic",
+      "name": "Business Logic Layer",
+      "type": "implementation",
+      "description": "Create AI classification, proposal generation, and Slack digest formatting modules.",
+      "depends_on": [
+        "phase-2-azure-clients"
+      ],
+      "parallel_safe": true,
+      "subtasks": [
+        {
+          "id": "subtask-4-1",
+          "description": "Create classifier module for AI relevance scoring and tag extraction",
+          "service": "rfp_radar",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/rfp_radar/classifier.py"
+          ],
+          "patterns_from": [],
+          "verification": {
+            "type": "command",
+            "command": "python -c \"import sys; sys.path.insert(0, 'src'); from rfp_radar.classifier import RFPClassifier; print('OK')\"",
+            "expected": "OK"
+          },
+          "status": "completed",
+          "notes": "Created RFPClassifier class in src/rfp_radar/classifier.py. Features: classify() for single RFP classification using LLMClient, classify_batch() for batch processing with error handling, filter_relevant() for filtering by threshold, classify_and_filter() convenience method, context manager support, health check, and proper tag validation. Verification passed (PYTHONPATH=src .venv/bin/python3). Commit: 0e643db8",
+          "updated_at": "2026-01-04T12:30:57.252852+00:00"
+        },
+        {
+          "id": "subtask-4-2",
+          "description": "Create proposal generator module for Level 3 full proposal creation",
+          "service": "rfp_radar",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/rfp_radar/proposal_generator.py"
+          ],
+          "patterns_from": [],
+          "verification": {
+            "type": "command",
+            "command": "python -c \"import sys; sys.path.insert(0, 'src'); from rfp_radar.proposal_generator import ProposalGenerator; print('OK')\"",
+            "expected": "OK"
+          },
+          "status": "completed",
+          "notes": "Created ProposalGenerator class in src/rfp_radar/proposal_generator.py. Features: generate() for single RFP proposal generation using LLMClient, generate_batch() for batch processing with error handling and skip_on_error option, store_proposal() for Azure Blob Storage integration via StorageClient, regenerate() for creating new proposal versions, NAITIVE branding integration (brand_name, brand_website), context manager support, health_check(), and comprehensive logging. Follows patterns from classifier.py and integrates with LLMClient.generate_proposal(). Verification passed (import works with env vars set). Commit: 7024d2d3",
+          "updated_at": "2026-01-04T12:36:12.085668+00:00"
+        },
+        {
+          "id": "subtask-4-3",
+          "description": "Create digest builder module for Slack message formatting",
+          "service": "rfp_radar",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/rfp_radar/digest_builder.py"
+          ],
+          "patterns_from": [],
+          "verification": {
+            "type": "command",
+            "command": "python -c \"import sys; sys.path.insert(0, 'src'); from rfp_radar.digest_builder import DigestBuilder; print('OK')\"",
+            "expected": "OK"
+          },
+          "status": "completed",
+          "notes": "Created DigestBuilder class in src/rfp_radar/digest_builder.py. Features: build_digest() for creating Digest models from ClassifiedRFPs and Proposals, build_digest_from_results() convenience method for ProposalGenerator output, format_slack_blocks() for Slack Block Kit rich formatting, format_fallback_text() for plain text notifications, entry formatting with score emojis/tags/proposal links, error notification formatting, NAITIVE branding integration, configurable max entries (default 10). Syntax verification passed; import test passed using isolated Python mode (.venv/bin/python3 -I). Commit: dba26af7",
+          "updated_at": "2026-01-04T12:40:09.354131+00:00"
+        }
+      ]
+    },
+    {
+      "id": "phase-5-orchestrator",
+      "name": "Main Orchestrator",
+      "type": "implementation",
+      "description": "Create the main.py orchestrator that coordinates the full pipeline: scrape \u2192 filter \u2192 classify \u2192 store \u2192 generate \u2192 notify.",
+      "depends_on": [
+        "phase-3-scraper-framework",
+        "phase-4-business-logic"
+      ],
+      "parallel_safe": false,
+      "subtasks": [
+        {
+          "id": "subtask-5-1",
+          "description": "Create main.py orchestrator with full pipeline logic",
+          "service": "rfp_radar",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/rfp_radar/main.py"
+          ],
+          "patterns_from": [],
+          "verification": {
+            "type": "command",
+            "command": "python -c \"import sys; sys.path.insert(0, 'src'); from rfp_radar.main import main; print('OK')\"",
+            "expected": "OK"
+          },
+          "status": "completed",
+          "notes": "Created main.py orchestrator with RFPRadarPipeline class implementing full pipeline logic: scrape \u2192 classify \u2192 filter \u2192 store \u2192 index \u2192 generate proposals \u2192 send digest. Features include context manager support, lazy client initialization, comprehensive error handling, pipeline statistics, health checks, and graceful Slack failure handling. Verification passed using .venv/bin/python3. Commit: 580251a8",
+          "updated_at": "2026-01-04T12:43:57.234294+00:00"
+        }
+      ]
+    },
+    {
+      "id": "phase-6-containerization",
+      "name": "Containerization",
+      "type": "implementation",
+      "description": "Create Docker containerization files including Dockerfile, requirements.txt, and pyproject.toml.",
+      "depends_on": [
+        "phase-5-orchestrator"
+      ],
+      "parallel_safe": true,
+      "subtasks": [
+        {
+          "id": "subtask-6-1",
+          "description": "Create requirements.txt with all Python dependencies",
+          "service": "rfp_radar",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/rfp_radar/requirements.txt"
+          ],
+          "patterns_from": [],
+          "verification": {
+            "type": "command",
+            "command": "test -f src/rfp_radar/requirements.txt && echo 'OK'",
+            "expected": "OK"
+          },
+          "status": "completed",
+          "notes": "Created requirements.txt with all Python dependencies for RFP Radar service. Includes: azure-storage-blob==12.23.0, azure-search-documents==11.6.0, azure-identity>=1.15.0, requests>=2.32.3, python-dotenv==1.0.1, slack-sdk==3.33.1, pydantic==2.9.2, tqdm==4.66.5, and testing dependencies (pytest, pytest-asyncio). Verification passed (file exists). Commit: df6a8fa7",
+          "updated_at": "2026-01-04T12:46:02.837876+00:00"
+        },
+        {
+          "id": "subtask-6-2",
+          "description": "Create pyproject.toml for package configuration with hatchling",
+          "service": "rfp_radar",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/rfp_radar/pyproject.toml"
+          ],
+          "patterns_from": [
+            "src/mcp_server/pyproject.toml"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "test -f src/rfp_radar/pyproject.toml && echo 'OK'",
+            "expected": "OK"
+          },
+          "status": "completed",
+          "notes": "Created pyproject.toml with hatchling build system, dependencies from requirements.txt, and rfp-radar entry point script. Verification passed.",
+          "updated_at": "2026-01-04T12:47:13.057130+00:00"
+        },
+        {
+          "id": "subtask-6-3",
+          "description": "Create Dockerfile with multi-stage build using uv",
+          "service": "rfp_radar",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/rfp_radar/Dockerfile"
+          ],
+          "patterns_from": [
+            "src/mcp_server/Dockerfile"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "test -f src/rfp_radar/Dockerfile && echo 'OK'",
+            "expected": "OK"
+          },
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": "phase-7-infrastructure",
+      "name": "Infrastructure (Bicep)",
+      "type": "implementation",
+      "description": "Create Bicep module for RFP Radar Azure Container Apps Job.",
+      "depends_on": [
+        "phase-1-foundation"
+      ],
+      "parallel_safe": true,
+      "subtasks": [
+        {
+          "id": "subtask-7-1",
+          "description": "Create Bicep module for Container Apps Job with schedule and environment configuration",
+          "service": "infrastructure",
+          "files_to_modify": [],
+          "files_to_create": [
+            "infra/modules/rfp-radar-job.bicep"
+          ],
+          "patterns_from": [
+            "infra/main.bicep"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "test -f infra/modules/rfp-radar-job.bicep && echo 'OK'",
+            "expected": "OK"
+          },
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": "phase-8-cicd",
+      "name": "CI/CD Workflow",
+      "type": "implementation",
+      "description": "Create GitHub Actions workflow for RFP Radar deployment.",
+      "depends_on": [
+        "phase-6-containerization",
+        "phase-7-infrastructure"
+      ],
+      "parallel_safe": false,
+      "subtasks": [
+        {
+          "id": "subtask-8-1",
+          "description": "Create GitHub Actions workflow for building and deploying RFP Radar",
+          "service": "ci_cd",
+          "files_to_modify": [],
+          "files_to_create": [
+            ".github/workflows/rfp-radar-deploy.yml"
+          ],
+          "patterns_from": [
+            ".github/workflows/docker-build-and-push.yml"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "test -f .github/workflows/rfp-radar-deploy.yml && echo 'OK'",
+            "expected": "OK"
+          },
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": "phase-9-unit-tests",
+      "name": "Unit Tests",
+      "type": "implementation",
+      "description": "Create unit tests for all RFP Radar modules.",
+      "depends_on": [
+        "phase-5-orchestrator"
+      ],
+      "parallel_safe": true,
+      "subtasks": [
+        {
+          "id": "subtask-9-1",
+          "description": "Create test package init and pytest configuration",
+          "service": "rfp_radar",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/rfp_radar/tests/__init__.py"
+          ],
+          "patterns_from": [],
+          "verification": {
+            "type": "command",
+            "command": "test -f src/rfp_radar/tests/__init__.py && echo 'OK'",
+            "expected": "OK"
+          },
+          "status": "pending"
+        },
+        {
+          "id": "subtask-9-2",
+          "description": "Create unit tests for config module",
+          "service": "rfp_radar",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/rfp_radar/tests/test_config.py"
+          ],
+          "patterns_from": [],
+          "verification": {
+            "type": "command",
+            "command": "test -f src/rfp_radar/tests/test_config.py && echo 'OK'",
+            "expected": "OK"
+          },
+          "status": "pending"
+        },
+        {
+          "id": "subtask-9-3",
+          "description": "Create unit tests for Pydantic models",
+          "service": "rfp_radar",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/rfp_radar/tests/test_models.py"
+          ],
+          "patterns_from": [],
+          "verification": {
+            "type": "command",
+            "command": "test -f src/rfp_radar/tests/test_models.py && echo 'OK'",
+            "expected": "OK"
+          },
+          "status": "pending"
+        },
+        {
+          "id": "subtask-9-4",
+          "description": "Create unit tests for classifier module",
+          "service": "rfp_radar",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/rfp_radar/tests/test_classifier.py"
+          ],
+          "patterns_from": [],
+          "verification": {
+            "type": "command",
+            "command": "test -f src/rfp_radar/tests/test_classifier.py && echo 'OK'",
+            "expected": "OK"
+          },
+          "status": "pending"
+        },
+        {
+          "id": "subtask-9-5",
+          "description": "Create unit tests for proposal generator module",
+          "service": "rfp_radar",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/rfp_radar/tests/test_proposal_generator.py"
+          ],
+          "patterns_from": [],
+          "verification": {
+            "type": "command",
+            "command": "test -f src/rfp_radar/tests/test_proposal_generator.py && echo 'OK'",
+            "expected": "OK"
+          },
+          "status": "pending"
+        },
+        {
+          "id": "subtask-9-6",
+          "description": "Create unit tests for digest builder module",
+          "service": "rfp_radar",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/rfp_radar/tests/test_digest_builder.py"
+          ],
+          "patterns_from": [],
+          "verification": {
+            "type": "command",
+            "command": "test -f src/rfp_radar/tests/test_digest_builder.py && echo 'OK'",
+            "expected": "OK"
+          },
+          "status": "pending"
+        },
+        {
+          "id": "subtask-9-7",
+          "description": "Create unit tests for scraper framework",
+          "service": "rfp_radar",
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/rfp_radar/tests/test_scrapers.py"
+          ],
+          "patterns_from": [],
+          "verification": {
+            "type": "command",
+            "command": "test -f src/rfp_radar/tests/test_scrapers.py && echo 'OK'",
+            "expected": "OK"
+          },
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": "phase-10-integration",
+      "name": "Integration Verification",
+      "type": "integration",
+      "description": "Verify end-to-end functionality with local test run and Docker container build.",
+      "depends_on": [
+        "phase-8-cicd",
+        "phase-9-unit-tests"
+      ],
+      "parallel_safe": false,
+      "subtasks": [
+        {
+          "id": "subtask-10-1",
+          "description": "Run all unit tests and verify passing",
+          "all_services": true,
+          "files_to_modify": [],
+          "files_to_create": [],
+          "patterns_from": [],
+          "verification": {
+            "type": "command",
+            "command": "python -m pytest src/rfp_radar/tests/ -v --tb=short",
+            "expected": "passed"
+          },
+          "status": "pending"
+        },
+        {
+          "id": "subtask-10-2",
+          "description": "Verify Docker container builds successfully",
+          "all_services": true,
+          "files_to_modify": [],
+          "files_to_create": [],
+          "patterns_from": [],
+          "verification": {
+            "type": "command",
+            "command": "docker build -t rfp-radar:integration-test -f src/rfp_radar/Dockerfile src/rfp_radar/",
+            "expected": "Successfully"
+          },
+          "status": "pending"
+        },
+        {
+          "id": "subtask-10-3",
+          "description": "Verify Bicep template validates correctly (requires Azure CLI)",
+          "all_services": true,
+          "files_to_modify": [],
+          "files_to_create": [],
+          "patterns_from": [],
+          "verification": {
+            "type": "manual",
+            "instructions": "Run: az bicep build --file infra/modules/rfp-radar-job.bicep"
+          },
+          "status": "pending"
+        },
+        {
+          "id": "subtask-10-4",
+          "description": "Run flake8 linting on all RFP Radar modules",
+          "all_services": true,
+          "files_to_modify": [],
+          "files_to_create": [],
+          "patterns_from": [],
+          "verification": {
+            "type": "command",
+            "command": "flake8 src/rfp_radar/ --max-line-length=120 --ignore=E501,W503",
+            "expected": ""
+          },
+          "status": "pending"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total_phases": 10,
+    "total_subtasks": 28,
+    "services_involved": [
+      "rfp_radar",
+      "infrastructure",
+      "ci_cd"
+    ],
+    "parallelism": {
+      "max_parallel_phases": 3,
+      "parallel_groups": [
+        {
+          "phases": [
+            "phase-2-azure-clients",
+            "phase-3-scraper-framework",
+            "phase-7-infrastructure"
+          ],
+          "reason": "All depend only on phase-1, different file sets, independent functionality"
+        },
+        {
+          "phases": [
+            "phase-6-containerization",
+            "phase-9-unit-tests"
+          ],
+          "reason": "Both depend on phase-5, containerization creates Docker files while tests verify functionality"
+        }
+      ],
+      "recommended_workers": 2,
+      "speedup_estimate": "1.5x faster than sequential"
+    },
+    "startup_command": "source auto-claude/.venv/bin/activate && python auto-claude/run.py --spec 001 --parallel 2"
+  },
+  "verification_strategy": {
+    "risk_level": "high",
+    "skip_validation": false,
+    "test_creation_phase": "phase-9-unit-tests",
+    "test_types_required": [
+      "unit",
+      "integration"
+    ],
+    "security_scanning_required": true,
+    "staging_deployment_required": true,
+    "acceptance_criteria": [
+      "All Python modules in src/rfp_radar/ created and importable",
+      "All unit tests pass",
+      "Dockerfile builds successfully",
+      "Bicep templates validate without errors",
+      "Flake8 linting passes",
+      "No hardcoded secrets in code"
+    ],
+    "verification_steps": [
+      {
+        "name": "Unit Tests",
+        "command": "python -m pytest src/rfp_radar/tests/ -v --tb=short",
+        "expected_outcome": "All tests pass",
+        "type": "test",
+        "required": true,
+        "blocking": true
+      },
+      {
+        "name": "Flake8 Linting",
+        "command": "flake8 src/rfp_radar/ --max-line-length=120 --ignore=E501,W503",
+        "expected_outcome": "No linting errors",
+        "type": "lint",
+        "required": true,
+        "blocking": true
+      },
+      {
+        "name": "Docker Build",
+        "command": "docker build -t rfp-radar:test -f src/rfp_radar/Dockerfile src/rfp_radar/",
+        "expected_outcome": "Container builds successfully",
+        "type": "build",
+        "required": true,
+        "blocking": true
+      },
+      {
+        "name": "Secrets Scan",
+        "command": "grep -r 'xoxb-\\|sk-\\|api[_-]key.*=.*[a-zA-Z0-9]' src/rfp_radar/ --include='*.py' | grep -v 'os.environ\\|_get_' | wc -l",
+        "expected_outcome": "0 (no hardcoded secrets)",
+        "type": "security",
+        "required": true,
+        "blocking": true
+      }
+    ],
+    "reasoning": "High risk due to multiple external API integrations (Azure, Slack) with credentials. Security scanning required for secrets. Integration tests needed for API clients."
+  },
+  "qa_acceptance": {
+    "unit_tests": {
+      "required": true,
+      "commands": [
+        "python -m pytest src/rfp_radar/tests/ -v"
+      ],
+      "minimum_coverage": null
+    },
+    "integration_tests": {
+      "required": true,
+      "commands": [
+        "python -m pytest src/rfp_radar/tests/ -v -k integration"
+      ],
+      "services_to_test": [
+        "rfp_radar"
+      ]
+    },
+    "e2e_tests": {
+      "required": false,
+      "commands": [],
+      "flows": []
+    },
+    "browser_verification": {
+      "required": false,
+      "pages": []
+    },
+    "database_verification": {
+      "required": false,
+      "checks": []
+    },
+    "build_verification": {
+      "required": true,
+      "checks": [
+        {
+          "check": "Docker image builds",
+          "command": "docker build -t rfp-radar:qa -f src/rfp_radar/Dockerfile src/rfp_radar/"
+        },
+        {
+          "check": "Bicep validates",
+          "command": "az bicep build --file infra/modules/rfp-radar-job.bicep"
+        }
+      ]
+    }
+  },
+  "qa_signoff": null,
+  "last_updated": "2026-01-04T12:47:13.057142+00:00"
+}

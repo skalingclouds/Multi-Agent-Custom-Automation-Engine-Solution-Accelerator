@@ -1,0 +1,34 @@
+{
+  "sandbox": {
+    "enabled": true,
+    "autoAllowBashIfSandboxed": true
+  },
+  "permissions": {
+    "defaultMode": "acceptEdits",
+    "allow": [
+      "Read(./**)",
+      "Write(./**)",
+      "Edit(./**)",
+      "Glob(./**)",
+      "Grep(./**)",
+      "Read(/Users/chris/ai/Multi-Agent-Custom-Automation-Engine-Solution-Accelerator/.worktrees/001-deploy/**)",
+      "Write(/Users/chris/ai/Multi-Agent-Custom-Automation-Engine-Solution-Accelerator/.worktrees/001-deploy/**)",
+      "Edit(/Users/chris/ai/Multi-Agent-Custom-Automation-Engine-Solution-Accelerator/.worktrees/001-deploy/**)",
+      "Glob(/Users/chris/ai/Multi-Agent-Custom-Automation-Engine-Solution-Accelerator/.worktrees/001-deploy/**)",
+      "Grep(/Users/chris/ai/Multi-Agent-Custom-Automation-Engine-Solution-Accelerator/.worktrees/001-deploy/**)",
+      "Read(/Users/chris/ai/Multi-Agent-Custom-Automation-Engine-Solution-Accelerator/.worktrees/001-deploy/.auto-claude/specs/001-deploy/**)",
+      "Write(/Users/chris/ai/Multi-Agent-Custom-Automation-Engine-Solution-Accelerator/.worktrees/001-deploy/.auto-claude/specs/001-deploy/**)",
+      "Edit(/Users/chris/ai/Multi-Agent-Custom-Automation-Engine-Solution-Accelerator/.worktrees/001-deploy/.auto-claude/specs/001-deploy/**)",
+      "Bash(*)",
+      "WebFetch(*)",
+      "WebSearch(*)",
+      "mcp__context7__resolve-library-id(*)",
+      "mcp__context7__get-library-docs(*)",
+      "mcp__graphiti-memory__search_nodes(*)",
+      "mcp__graphiti-memory__search_facts(*)",
+      "mcp__graphiti-memory__add_episode(*)",
+      "mcp__graphiti-memory__get_episodes(*)",
+      "mcp__graphiti-memory__get_entity_edge(*)"
+    ]
+  }
+}

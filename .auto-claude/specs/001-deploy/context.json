@@ -1,0 +1,88 @@
+{
+  "task_description": "Deploy NAITIVE RFP Radar - Azure-native automated RFP discovery and proposal generation system",
+  "scoped_services": ["rfp_radar", "infrastructure"],
+  "files_to_modify": {
+    "rfp_radar": [
+      "src/rfp_radar/__init__.py",
+      "src/rfp_radar/main.py",
+      "src/rfp_radar/config.py",
+      "src/rfp_radar/models.py",
+      "src/rfp_radar/classifier.py",
+      "src/rfp_radar/proposal_generator.py",
+      "src/rfp_radar/digest_builder.py",
+      "src/rfp_radar/storage_client.py",
+      "src/rfp_radar/search_client.py",
+      "src/rfp_radar/slack_client.py",
+      "src/rfp_radar/llm_client.py",
+      "src/rfp_radar/logging_utils.py",
+      "src/rfp_radar/scrapers/__init__.py",
+      "src/rfp_radar/scrapers/base.py",
+      "src/rfp_radar/scrapers/govtribe.py",
+      "src/rfp_radar/scrapers/opengov.py",
+      "src/rfp_radar/scrapers/bidnet.py",
+      "src/rfp_radar/Dockerfile",
+      "src/rfp_radar/requirements.txt",
+      "src/rfp_radar/pyproject.toml"
+    ],
+    "tests": [
+      "src/rfp_radar/tests/__init__.py",
+      "src/rfp_radar/tests/test_config.py",
+      "src/rfp_radar/tests/test_classifier.py",
+      "src/rfp_radar/tests/test_proposal_generator.py",
+      "src/rfp_radar/tests/test_digest_builder.py",
+      "src/rfp_radar/tests/test_models.py",
+      "src/rfp_radar/tests/test_scrapers.py"
+    ],
+    "infrastructure": [
+      "infra/modules/rfp-radar-job.bicep"
+    ],
+    "ci_cd": [
+      ".github/workflows/rfp-radar-deploy.yml"
+    ]
+  },
+  "files_to_reference": [
+    {
+      "file": "src/backend/common/config/app_config.py",
+      "pattern": "Environment variable loading with _get_required() and _get_optional()"
+    },
+    {
+      "file": "src/mcp_server/Dockerfile",
+      "pattern": "Multi-stage Docker build with uv for Python"
+    },
+    {
+      "file": "src/mcp_server/pyproject.toml",
+      "pattern": "Python project configuration with hatchling"
+    },
+    {
+      "file": "infra/main.bicep",
+      "pattern": "Bicep resource naming with solutionSuffix, Container App definition"
+    },
+    {
+      "file": ".github/workflows/docker-build-and-push.yml",
+      "pattern": "Docker build and push to Azure Container Registry"
+    },
+    {
+      "file": "src/mcp_server/services/hr_service.py",
+      "pattern": "Service class with async methods"
+    },
+    {
+      "file": "src/backend/common/utils/utils_date.py",
+      "pattern": "Date utility functions"
+    }
+  ],
+  "patterns": {
+    "config_pattern": "Use _get_required() for mandatory vars with ValueError on missing, _get_optional() with defaults",
+    "credential_pattern": "DefaultAzureCredential for dev, ManagedIdentityCredential for prod",
+    "bicep_naming": "solutionSuffix = toLower(trim(replace(name, '-', ''))), prefixes: st, ca, cae, srch, kv",
+    "docker_pattern": "Multi-stage build with ghcr.io/astral-sh/uv:0.6.3, UV_COMPILE_BYTECODE=1",
+    "async_pattern": "Use async/await for I/O-bound operations like API calls"
+  },
+  "existing_implementations": {
+    "description": "Azure integration patterns already exist in backend",
+    "relevant_files": [
+      "src/backend/common/config/app_config.py",
+      "infra/main.bicep"
+    ]
+  },
+  "created_at": "2026-01-04T03:30:00.000000"
+}

@@ -1,0 +1,55 @@
+{
+  "project_root": "/Users/chris/ai/Multi-Agent-Custom-Automation-Engine-Solution-Accelerator",
+  "project_type": "monorepo",
+  "services": {
+    "backend": {
+      "path": "src/backend",
+      "tech_stack": ["python", "fastapi", "azure"],
+      "port": 8000,
+      "dev_command": "uv run uvicorn app_kernel:app --host 0.0.0.0 --port 8000",
+      "test_command": "pytest tests/"
+    },
+    "frontend": {
+      "path": "src/frontend",
+      "tech_stack": ["react", "typescript", "vite"],
+      "port": 3000,
+      "dev_command": "npm run dev",
+      "test_command": "npm test"
+    },
+    "mcp_server": {
+      "path": "src/mcp_server",
+      "tech_stack": ["python", "fastmcp"],
+      "port": 9000,
+      "dev_command": "uv run python mcp_server.py --transport streamable-http --host 0.0.0.0 --port 9000",
+      "test_command": "pytest"
+    },
+    "rfp_radar": {
+      "path": "src/rfp_radar",
+      "tech_stack": ["python", "azure-storage-blob", "azure-search-documents", "slack-sdk"],
+      "port": null,
+      "type": "batch_job",
+      "dev_command": "python src/rfp_radar/main.py",
+      "test_command": "pytest src/rfp_radar/tests/"
+    }
+  },
+  "infrastructure": {
+    "docker": true,
+    "ci": "GitHub Actions",
+    "container_registry": "biabcontainerreg.azurecr.io",
+    "iac": "Bicep",
+    "cloud": "Azure",
+    "ci_workflows": [
+      "docker-build-and-push.yml",
+      "deploy.yml",
+      "test.yml",
+      "codeql.yml"
+    ]
+  },
+  "conventions": {
+    "linter": "flake8",
+    "formatter": "black",
+    "testing": "pytest",
+    "python_version": "3.11",
+    "package_manager": "uv"
+  }
+}

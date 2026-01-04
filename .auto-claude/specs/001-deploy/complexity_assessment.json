@@ -1,0 +1,95 @@
+{
+  "complexity": "complex",
+  "workflow_type": "feature",
+  "confidence": 0.92,
+  "reasoning": "This is a greenfield service deployment with 20+ new files, 5+ external integrations (Azure Blob, AI Search, OpenAI, Slack, RFP portals), infrastructure-as-code (Bicep/Docker), and new architectural patterns (scraper framework, AI classification, proposal generation). The scope and integration density clearly places this in the complex tier.",
+
+  "analysis": {
+    "scope": {
+      "estimated_files": 22,
+      "estimated_services": 1,
+      "is_cross_cutting": false,
+      "notes": "New standalone service with ~20+ files: orchestrator, config, classifier, proposal generator, digest builder, models, logging, LLM client, Slack client, storage client, search client, 3 scrapers, scraper framework, Dockerfile, Bicep templates, deploy script, requirements.txt, README. Self-contained new service added to existing project."
+    },
+    "integrations": {
+      "external_services": [
+        "Azure Blob Storage",
+        "Azure AI Search",
+        "Azure OpenAI (GPT-4o/GPT-4.1)",
+        "Slack API",
+        "GovTribe API/portal",
+        "OpenGov API/portal",
+        "BidNet API/portal"
+      ],
+      "new_dependencies": [
+        "azure-storage-blob",
+        "azure-search-documents",
+        "slack_sdk",
+        "pydantic",
+        "requests",
+        "python-dotenv",
+        "tqdm"
+      ],
+      "research_needed": true,
+      "notes": "Multiple Azure SDK integrations require understanding of authentication, SAS tokens, and API patterns. Slack SDK for bot messaging. RFP portal scrapers need endpoint discovery and authentication strategies. Azure OpenAI prompt engineering for classification and proposal generation."
+    },
+    "infrastructure": {
+      "docker_changes": true,
+      "database_changes": true,
+      "config_changes": true,
+      "notes": "New Dockerfile for containerization. Bicep templates for Azure resources (Storage account, AI Search, Container Apps environment). Azure Search index creation. Container Apps Job scheduling. ~15 new environment variables for Azure, Slack, and app configuration."
+    },
+    "knowledge": {
+      "patterns_exist": false,
+      "research_required": true,
+      "unfamiliar_tech": [
+        "Azure Container Apps Jobs",
+        "Azure AI Search SDK",
+        "Bicep IaC",
+        "RFP portal APIs (GovTribe, OpenGov, BidNet)"
+      ],
+      "notes": "While existing project has Azure patterns, this introduces new components: Container Apps Jobs for scheduling, AI Search for indexing, scraper framework design, AI-powered classification and proposal generation. Portal-specific scraping strategies need research."
+    },
+    "risk": {
+      "level": "medium",
+      "concerns": [
+        "External portal API stability and authentication",
+        "Azure resource costs (OpenAI, Search, Storage)",
+        "API key and secret management across multiple services",
+        "Scraper reliability and rate limiting",
+        "AI classification accuracy and threshold tuning",
+        "Slack rate limits for digest posting"
+      ],
+      "notes": "Medium risk due to external dependencies. Scrapers are 'skeleton' implementations requiring real-world adaptation. Feature flag (optional) pattern adds conditional complexity. Cost management for Azure OpenAI calls."
+    }
+  },
+
+  "recommended_phases": [
+    "discovery",
+    "requirements",
+    "research",
+    "context",
+    "spec_writing",
+    "self_critique",
+    "planning",
+    "validation"
+  ],
+
+  "flags": {
+    "needs_research": true,
+    "needs_self_critique": true,
+    "needs_infrastructure_setup": true
+  },
+
+  "validation_recommendations": {
+    "risk_level": "high",
+    "skip_validation": false,
+    "minimal_mode": false,
+    "test_types_required": ["unit", "integration", "e2e"],
+    "security_scan_required": true,
+    "staging_deployment_required": true,
+    "reasoning": "Multiple external API integrations with credentials (Azure, Slack, OpenAI) require security scanning. New infrastructure deployment (Bicep, Container Apps) needs staging validation. Full test coverage for scraper logic, classification, and proposal generation."
+  },
+
+  "created_at": "2025-01-04T12:00:00Z"
+}
