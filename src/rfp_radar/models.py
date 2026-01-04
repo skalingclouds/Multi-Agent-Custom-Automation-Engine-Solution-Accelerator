@@ -126,7 +126,7 @@ class ClassificationResult(BaseModel):
 
     rfp_id: str = Field(..., description="ID of the classified RFP")
     relevance_score: float = Field(
-        ..., ge=0.0, le=1.0, description="Relevance score between 0 and 1"
+        ..., description="Relevance score between 0 and 1"
     )
     tags: List[RFPTag] = Field(
         default_factory=list, description="Classification tags"
@@ -141,7 +141,7 @@ class ClassificationResult(BaseModel):
         default="gpt-4o", description="Model used for classification"
     )
     confidence: float = Field(
-        default=1.0, ge=0.0, le=1.0, description="Confidence in the classification"
+        default=1.0, description="Confidence in the classification"
     )
 
     @field_validator("relevance_score", "confidence")

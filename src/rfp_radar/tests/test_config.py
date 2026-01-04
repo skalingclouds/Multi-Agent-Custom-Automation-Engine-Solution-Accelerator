@@ -252,8 +252,8 @@ class TestConfigAzureCredentials:
             from rfp_radar.config import RFPRadarConfig
             config = RFPRadarConfig()
 
-            with patch("rfp_radar.config.DefaultAzureCredential") as mock_default:
-                with patch("rfp_radar.config.ManagedIdentityCredential"):
+            with patch("azure.identity.DefaultAzureCredential") as mock_default:
+                with patch("azure.identity.ManagedIdentityCredential"):
                     mock_default.return_value = MagicMock()
                     credential = config.get_azure_credential()
                     mock_default.assert_called_once()
@@ -269,8 +269,8 @@ class TestConfigAzureCredentials:
             from rfp_radar.config import RFPRadarConfig
             config = RFPRadarConfig()
 
-            with patch("rfp_radar.config.DefaultAzureCredential"):
-                with patch("rfp_radar.config.ManagedIdentityCredential") as mock_managed:
+            with patch("azure.identity.DefaultAzureCredential"):
+                with patch("azure.identity.ManagedIdentityCredential") as mock_managed:
                     mock_managed.return_value = MagicMock()
                     credential = config.get_azure_credential(client_id="test-client-id")
                     mock_managed.assert_called_once_with(client_id="test-client-id")
