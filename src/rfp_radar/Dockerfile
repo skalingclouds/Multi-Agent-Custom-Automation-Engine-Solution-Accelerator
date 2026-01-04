@@ -7,18 +7,15 @@ FROM base AS builder
 COPY --from=ghcr.io/astral-sh/uv:0.6.3 /uv /uvx /bin/
 ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
 
-# Copy lock and project files first for caching
-COPY uv.lock pyproject.toml /app/
+# Copy project files first for caching
+COPY pyproject.toml requirements.txt /app/
 
-# Install dependencies (frozen, no dev) using uv
-# RUN --mount=type=cache,target=/root/.cache/uv \
-#     uv sync --frozen --no-install-project --no-dev
+# Generate lock file and install dependencies (no dev) using uv
+RUN uv lock && uv sync --no-install-project --no-dev
 
-RUN uv sync --frozen --no-install-project --no-dev
 # Copy application code and install project dependencies
 COPY . /app
-#RUN --mount=type=cache,target=/root/.cache/uv uv sync --frozen --no-dev
-RUN uv sync --frozen --no-dev
+RUN uv sync --no-dev
 
 # Final stage
 FROM base
