@@ -1,0 +1,49 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "macae-rfp-radar"
+description = "Automated RFP discovery and proposal generation service for the MACAE solution accelerator"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+  { name = "Microsoft MACAE Team" }
+]
+dynamic = ["version"]
+
+# Core runtime dependencies (kept in sync with requirements.txt)
+dependencies = [
+  "azure-storage-blob==12.23.0",
+  "azure-search-documents==11.6.0",
+  "azure-identity>=1.15.0",
+  "requests>=2.32.3",
+  "python-dotenv==1.0.1",
+  "slack-sdk==3.33.1",
+  "pydantic==2.9.2",
+  "tqdm==4.66.5",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.2,<9",
+  "pytest-asyncio>=0.24.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/microsoft/Multi-Agent-Custom-Automation-Engine-Solution-Accelerator"
+Repository = "https://github.com/microsoft/Multi-Agent-Custom-Automation-Engine-Solution-Accelerator"
+
+# Version is sourced from the package __init__.py
+[tool.hatch.version]
+path = "__init__.py"
+
+# Hatch build configuration. Since this folder is itself the package root,
+# include everything under it (no src/ layout).
+[tool.hatch.build.targets.wheel]
+packages = ["."]
+include = ["**/*", "README.md"]
+
+[project.scripts]
+rfp-radar = "rfp_radar:main"
