@@ -1,0 +1,27 @@
+# RFP Radar Python Dependencies
+# NAITIVE RFP Radar - Azure-native automated RFP discovery and proposal generation
+
+# Azure SDK - Storage and Search
+azure-storage-blob==12.23.0
+azure-search-documents==11.6.0
+azure-identity>=1.15.0
+
+# HTTP client
+requests>=2.32.3  # 2.32.4+ recommended for CVE-2024-47081 fix
+
+# Environment configuration
+python-dotenv==1.0.1
+
+# Slack integration
+# Note: install as 'slack-sdk' (hyphen), import as 'slack_sdk' (underscore)
+slack-sdk==3.33.1
+
+# Data validation
+pydantic==2.9.2
+
+# Progress bars
+tqdm==4.66.5
+
+# Testing (for development)
+pytest>=8.2,<9
+pytest-asyncio>=0.24.0
