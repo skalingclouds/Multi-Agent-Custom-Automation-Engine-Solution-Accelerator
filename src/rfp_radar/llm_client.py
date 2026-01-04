@@ -585,8 +585,8 @@ Write a complete, professional proposal response."""
                 "executive_summary": exec_summary[:500] if exec_summary else "",
                 "key_differentiators": [
                     f"Deep expertise in {tags_str}",
-                    f"Proven track record with government clients",
-                    f"Comprehensive support and maintenance",
+                    "Proven track record with government clients",
+                    "Comprehensive support and maintenance",
                 ],
             }
 
