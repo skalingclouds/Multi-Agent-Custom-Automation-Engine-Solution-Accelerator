@@ -119,3 +119,84 @@ Note: Full Docker build verification requires Docker runtime.
 The static analysis confirms the build should succeed.
 
 === END subtask-10-2 ===
+
+=== SESSION: subtask-10-3 ===
+Date: 2026-01-04
+Subtask: Verify Bicep template validates correctly (requires Azure CLI)
+
+Environment Limitation:
+- Azure CLI (`az`) is not available in the sandboxed environment
+- Bicep CLI is also not available
+- Performed comprehensive manual syntax and pattern verification instead
+
+Manual Verification Checklist:
+
+1. PARAMETER DEFINITIONS [PASS]
+   - All parameters have @description decorators
+   - Required vs optional params correctly marked
+   - Type annotations are valid (string, int, object, bool)
+   - @secure() decorator used for sensitive params (slackBotTokenSecretUri)
+   - Default values properly formatted
+
+2. RESOURCE API VERSIONS [PASS]
+   - Microsoft.App/jobs@2024-03-01 (current stable API version)
+   - Microsoft.Resources/deployments@2024-03-01 (matches main.bicep pattern)
+
+3. RESOURCE STRUCTURE [PASS]
+   - Container Apps Job resource properly structured
+   - Identity configuration (UserAssigned) matches main.bicep pattern
+   - Schedule trigger configuration valid (cronExpression, parallelism)
+   - Secrets array properly configured with Key Vault reference
+   - Container template with proper env vars and resources
+
+4. ENVIRONMENT VARIABLES [PASS]
+   - All required env vars from spec included:
+     * APP_ENV, AZURE_TENANT_ID, AZURE_CLIENT_ID
+     * AZURE_STORAGE_ACCOUNT_URL, AZURE_STORAGE_CONTAINER
+     * AZURE_SEARCH_ENDPOINT, AZURE_SEARCH_INDEX_NAME
+     * AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_DEPLOYMENT, AZURE_OPENAI_API_VERSION
+     * SLACK_BOT_TOKEN (secretRef), SLACK_CHANNEL
+     * RFP_RELEVANCE_THRESHOLD, RFP_MAX_AGE_DAYS
+     * NAITIVE_BRAND_NAME, NAITIVE_WEBSITE
+     * APPLICATIONINSIGHTS_CONNECTION_STRING
+
+5. OUTPUTS [PASS]
+   - name, resourceId, resourceGroupName, location outputs defined
+   - @description decorators on all outputs
+
+6. TELEMETRY [PASS]
+   - AVM telemetry pattern matches main.bicep exactly
+   - #disable-next-line no-deployments-resources pragma present
+
+7. NAMING CONVENTIONS [PASS]
+   - Follows project patterns for Container Apps Job
+   - Uses json() for CPU resources (consistent with Container App examples)
+
+8. SECURITY PATTERNS [PASS]
+   - Managed Identity for Key Vault secret access
+   - No hardcoded secrets or API keys
+   - Secure parameter decorator on slackBotTokenSecretUri
+
+9. CONFIGURATION DEFAULTS [PASS]
+   - cronExpression: '0 6 * * *' (daily at 6 AM UTC)
+   - replicaTimeout: 1800 (30 minutes)
+   - replicaRetryLimit: 3
+   - All match spec requirements
+
+Comparison with main.bicep patterns:
+- [PASS] UserAssigned identity format matches exactly
+- [PASS] Telemetry module pattern identical
+- [PASS] Parameter description patterns consistent
+- [PASS] Output naming conventions match
+
+VERDICT: PASS (Manual Verification)
+
+The Bicep template follows all established patterns from the main.bicep
+and uses correct API versions and syntax. While Azure CLI validation
+was not possible in this environment, the manual review confirms the
+template should validate successfully when run with:
+  az bicep build --file infra/modules/rfp-radar-job.bicep
+
+Recommendation: Validate with Azure CLI before production deployment.
+
+=== END subtask-10-3 ===
