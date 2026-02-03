@@ -1,25 +1,25 @@
 {
   "active": true,
   "spec": "001-deploy",
-  "state": "building",
+  "state": "complete",
   "subtasks": {
-    "completed": 26,
+    "completed": 33,
     "total": 33,
-    "in_progress": 1,
+    "in_progress": 0,
     "failed": 0
   },
   "phase": {
-    "current": "Unit Tests",
+    "current": "Integration Verification",
     "id": null,
-    "total": 7
+    "total": 4
   },
   "workers": {
     "active": 0,
     "max": 1
   },
   "session": {
-    "number": 27,
+    "number": 33,
     "started_at": "2026-01-04T03:35:14.350862"
   },
-  "last_update": "2026-01-04T05:07:02.212868"
+  "last_update": "2026-01-04T05:34:56.716579"
 }

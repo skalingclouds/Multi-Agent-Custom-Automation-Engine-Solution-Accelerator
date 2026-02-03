@@ -19,7 +19,12 @@
       "description": "Main orchestrator with RFPRadarPipeline class. Entry point is main() function. Pipeline stages: 1) _scrape_all_sources() - uses SCRAPERS registry, 2) _classify_rfps() - uses RFPClassifier.classify_batch(), 3) _filter_relevant() - uses relevance threshold, 4) _store_rfp_metadata() - Azure Blob Storage, 5) _index_rfps() - Azure AI Search, 6) _generate_proposals() - ProposalGenerator.generate_batch(), 7) _build_and_send_digest() - DigestBuilder + SlackClient. Supports context manager, lazy client initialization, and graceful Slack failure handling.",
       "category": "architecture",
       "discovered_at": "2026-01-04T12:44:03.999515+00:00"
+    },
+    "src/rfp_radar/Dockerfile": {
+      "description": "Dockerfile uses multi-stage build with uv package manager. Generates lock file during build with `uv lock && uv sync` pattern. Uses non-root 'app' user for security. Entry point runs `python -m rfp_radar.main`.",
+      "category": "containerization",
+      "discovered_at": "2026-01-04T13:26:48.695887+00:00"
     }
   },
-  "last_updated": "2026-01-04T12:44:03.999528+00:00"
+  "last_updated": "2026-01-04T13:26:48.695902+00:00"
 }

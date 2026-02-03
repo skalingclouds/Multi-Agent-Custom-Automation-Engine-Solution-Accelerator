@@ -465,3 +465,6 @@ data/sample_code/
 # Bicep local files
 *.local*.bicepparam
 *.local*.parameters.json
+
+# OpenMemory - IDE/Assistant specific rules
+.cursor/rules/openmemory.mdc
